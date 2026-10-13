@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: careergap-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: careergap_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Python FastAPI Backend
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: careergap-api
+    restart: always
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - AI_PROVIDER=deterministic_fallback
+      - AI_API_KEY=${AI_API_KEY:-}
+      - AI_MODEL_NAME=gemini-1.5-flash
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: careergap-web
+    restart: always
+    depends_on:
+      - api
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/careergap_ai?schema=public
+      - FASTAPI_URL=http://api:8000
+      - NEXT_PUBLIC_FASTAPI_URL=http://127.0.0.1:8000
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
