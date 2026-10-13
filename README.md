@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CareerGap AI — AI-Powered Career Intelligence & Skill Gap Analyzer
 
 [![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen.svg)](scripts/run-tests.ps1)
@@ -159,3 +160,7 @@ For judges and presentations, follow this flow:
 ## 7. License
 
 Released under the MIT License. Built for students, engineers, and career switchers.
+=======
+# CareerGap-AI
+Project
+>>>>>>> a8719dbda255dd6a9140275cdcd8169c50038ff4
